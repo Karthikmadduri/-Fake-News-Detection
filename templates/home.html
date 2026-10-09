@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fake News Detection System</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #ef4444;
+      --danger-bg: #fef2f2;
+      --success: #10b981;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      line-height: 1.5;
+      padding: 40px 20px;
+    }
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 36px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+      border: 1px solid var(--border);
+    }
+    .badge {
+      display: inline-block;
+      background: #eff6ff;
+      color: var(--primary);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .desc {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .sample-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .sample-btn {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .sample-btn:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    textarea {
+      width: 100%;
+      min-height: 200px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text);
+      background: #fafafa;
+      resize: vertical;
+      transition: border-color 0.15s ease;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    .submit-btn {
+      display: inline-block;
+      margin-top: 18px;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 13px 28px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .submit-btn:hover {
+      background: var(--primary-hover);
+    }
+    .alert-error {
+      background: var(--danger-bg);
+      color: var(--danger);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 18px;
+      border: 1px solid #fecaca;
+    }
+    .footer-note {
+      margin-top: 28px;
+      font-size: 13px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card">
+      <span class="badge">Machine Learning System</span>
+      <h1>Fake News Detection</h1>
+      <p class="desc">
+        Paste any news headline or article body below. The Natural Language Processing (NLP) classifier will analyze the linguistic patterns and determine whether the content is likely <strong>Real News</strong> or <strong>Fake News</strong>.
+      </p>
+
+      {% if error %}
+      <div class="alert-error">
+        <strong>Error:</strong> {{ error }}
+      </div>
+      {% endif %}
+
+      <div class="sample-buttons">
+        <span style="font-size: 13px; font-weight: 600; align-self: center; color: var(--text-muted);">Quick Test Samples:</span>
+        <button type="button" class="sample-btn" onclick="fillRealSample()">Insert Real News Sample</button>
+        <button type="button" class="sample-btn" onclick="fillFakeSample()">Insert Fake News Sample</button>
+      </div>
+
+      <form action="/predict" method="post">
+        <label for="message">News Article or Headline:</label>
+        <textarea id="message" name="message" placeholder="Paste news article text here..." required>{{ request.form.get('message', '') }}</textarea>
+        <div>
+          <button type="submit" class="submit-btn">Analyze Article &rarr;</button>
+        </div>
+      </form>
+
+      <div class="footer-note">
+        <strong>Notice:</strong> This model is trained on journalistic and political news corpora (Reuters/Kaggle datasets) using TF-IDF and Machine Learning algorithms. Predictions indicate linguistic pattern similarities, not manual factual verification.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function fillRealSample() {
+      document.getElementById('message').value = "WASHINGTON (Reuters) - The U.S. Senate voted overwhelmingly on Thursday to approve bipartisan legislation authorizing federal funding for infrastructure and clean energy programs across the country.";
+    }
+
+    function fillFakeSample() {
+      document.getElementById('message').value = "BREAKING: Secret documents leaked from underground base prove government has been concealing shocking extraterrestrial contact and mind control technology from the public!";
+    }
+  </script>
+</body>
+</html>
